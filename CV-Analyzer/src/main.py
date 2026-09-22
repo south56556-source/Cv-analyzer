@@ -3,7 +3,33 @@ import re
 from pathlib import Path
 
 import streamlit as st
-from dotenv import load_dotenv
+
+
+def load_dotenv(dotenv_path=".env"):
+    """Load environment variables from a .env file when python-dotenv is available.
+    Falls back to a minimal parser so deployment works without the package.
+    """
+    try:
+        from dotenv import load_dotenv as _load_dotenv
+
+        return _load_dotenv(dotenv_path)
+    except ModuleNotFoundError:
+        env_file = Path(dotenv_path)
+        if not env_file.is_absolute():
+            env_file = Path(__file__).resolve().parents[1] / dotenv_path
+
+        if not env_file.exists():
+            return False
+
+        for line in env_file.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, value = line.split("=", 1)
+            os.environ[key.strip()] = value.strip().strip('"\'')
+        return True
+
+
 from groq import Groq
 from pypdf import PdfReader
 
