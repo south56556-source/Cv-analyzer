@@ -35,7 +35,10 @@ try:
 except ModuleNotFoundError:
     Groq = None
 
-from pypdf import PdfReader
+try:
+    from pypdf import PdfReader
+except ModuleNotFoundError:
+    PdfReader = None
 
 
 load_dotenv()
@@ -74,6 +77,9 @@ def extract_text_from_pdf(pdf_file):
     """Extract text content from an uploaded PDF file."""
     if pdf_file is None:
         return ""
+
+    if PdfReader is None:
+        raise RuntimeError("The 'pypdf' package is not installed. Add it to requirements.txt or install it in the environment.")
 
     file_obj = pdf_file
     if hasattr(file_obj, "seek"):
