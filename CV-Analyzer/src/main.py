@@ -30,7 +30,11 @@ def load_dotenv(dotenv_path=".env"):
         return True
 
 
-from groq import Groq
+try:
+    from groq import Groq
+except ModuleNotFoundError:
+    Groq = None
+
 from pypdf import PdfReader
 
 
@@ -86,6 +90,9 @@ def extract_text_from_pdf(pdf_file):
 
 def get_groq_client():
     """Create a Groq client if an API key is available."""
+    if Groq is None:
+        raise RuntimeError("The 'groq' package is not installed. Add it to requirements.txt or install it in the environment.")
+
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         return None
